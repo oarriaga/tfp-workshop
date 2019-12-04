@@ -39,14 +39,15 @@ def PosteriorMeanField(kernel_size, bias_size=0, dtype=None):
     ])
 
 
-def LinearRegressor():
+def LinearRegressor(KL_weight):
     """Instantiates a linear regression model using Keras API
     # Arguments
         batch_shape: List of Ints e.g. [batch_size, num_features]
         build_distribution: Python function.
     """
     model = tf.keras.Sequential([
-        tfp.layers.DenseVariational(2, PosteriorMeanField, TrainablePrior),
+        tfp.layers.DenseVariational(
+            2, PosteriorMeanField, TrainablePrior, KL_weight),
         tfp.layers.DistributionLambda(lambda x: tfd.Normal(
             loc=x[..., :1],
             scale=1e-3 + tf.math.softplus(0.01 * x[..., 1:])))])
@@ -80,7 +81,7 @@ axes[1].set(xlabel=xlabel, ylabel=ylabel, title='African Nations')
 # iterating over non African and African splits
 for axis, data in enumerate(dataset):
     # instantiating model, loss and optimizer
-    model = LinearRegressor()
+    model = LinearRegressor(1 / len(data[0]))
     model.compile(tf.optimizers.Adam(0.01), negative_log_likelihood)
     model.fit(*data, epochs=2000, verbose=2)
 
