@@ -1,0 +1,14 @@
+version: '3.3'
+
+services:
+  workshop:
+    build:
+      context: ./docker
+      dockerfile: Dockerfile
+    tty: true
+    volumes:
+      - ./examples:/tf/notebooks
+    expose:
+      - 8888
+    ports:
+      - 8888:8888
